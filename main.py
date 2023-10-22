@@ -75,8 +75,8 @@ class BugsScreen(Screen):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=20)
         defects_label = Label(text='Defects', color=(0, 0.6, 1, 1), font_size=24)
-        defects_list = TextInput(readonly=True, height=100, background_color=(0.1, 0.1, 0.1, 1),
-                                 foreground_color=(0, 0.6, 1, 1))
+        self.defects_list = TextInput(readonly=True, height=100, background_color=(0.1, 0.1, 0.1, 1),
+                                      foreground_color=(0, 0.6, 1, 1))
         self.bug_report_input = TextInput(hint_text='Bug Report', background_color=(0.1, 0.1, 0.1, 1),
                                           foreground_color=(0, 0.6, 1, 1))
         self.existing_checkbox = CheckBox(group='bug_type', active=True, color=(0, 0.6, 1, 1))
@@ -86,7 +86,7 @@ class BugsScreen(Screen):
         add_button = Button(text='Add', on_press=self.on_add_pressed, background_color=(0, 0.6, 1, 1))
         down_button = Button(text='Write to File', on_press=self.on_down_pressed, background_color=(0, 0.6, 1, 1))
         layout.add_widget(defects_label)
-        layout.add_widget(defects_list)
+        layout.add_widget(self.defects_list)
         layout.add_widget(self.bug_report_input)
         layout.add_widget(self.existing_checkbox)
         layout.add_widget(existing_label)
@@ -129,6 +129,9 @@ class BugsScreen(Screen):
         except Exception as e:
             print(e)  # You can handle the exception as needed
 
+    def refresh_defects_list(self):
+        self.defects_list.text = '\n'.join(self.existing_bugs + self.new_bugs)
+
     def on_down_pressed(self, instance):
         with open(f"{self.subject}.txt", 'w') as file:
             file.write(f"Subject: {self.subject}\n")
@@ -136,7 +139,6 @@ class BugsScreen(Screen):
             file.write('\n'.join(self.existing_bugs))
             file.write("\nNew Bugs:\n")
             file.write('\n'.join(self.new_bugs))
-
 
 class SummaryApp(App):
     def build(self):
