@@ -27,13 +27,23 @@ class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=20)
+
         label = Label(text='Welcome! Create your next summary now', color=(0, 0.6, 1, 1), font_size=24)
+        link_input = TextInput(hint_text='Test Pack Link', background_color=(0.1, 0.1, 0.1, 1),
+                               foreground_color=(0, 0.6, 1, 1))
         button = Button(text='Start', on_press=self.on_start_pressed, background_color=(0, 0.6, 1, 1))
+
         layout.add_widget(label)
+        layout.add_widget(link_input)
         layout.add_widget(button)
+
         self.add_widget(layout)
 
+        self.test_pack_link = ''  # Variable to store the link
+
     def on_start_pressed(self, instance):
+        # Set the test_pack_link before moving to the next screen
+        self.test_pack_link = self.children[0].children[1].text
         self.manager.current = 'details'
 
 
@@ -67,8 +77,10 @@ class DetailsScreen(Screen):
         self.test_pack = self.test_pack_input.text
 
         subject = f"{self.project} {self.version} {self.test_pack}"
+        test_pack_link = App.get_running_app().root.get_screen('welcome').test_pack_link
         self.manager.current = 'bugs'
-        self.manager.get_screen('bugs').set_subject(subject)
+        bugs_screen = self.manager.get_screen('bugs')
+        bugs_screen.set_subject(subject, test_pack_link)
 
 class BugsScreen(Screen):
     def __init__(self, **kwargs):
@@ -100,8 +112,9 @@ class BugsScreen(Screen):
         self.existing_bugs = []
         self.new_bugs = []
 
-    def set_subject(self, subject):
+    def set_subject(self, subject, test_pack_link):
         self.subject = subject
+        self.test_pack_link = test_pack_link
 
     def on_add_pressed(self, instance):
         try:
@@ -135,10 +148,13 @@ class BugsScreen(Screen):
     def on_down_pressed(self, instance):
         with open(f"{self.subject}.txt", 'w') as file:
             file.write(f"Subject: {self.subject}\n")
+            if self.test_pack_link:
+                file.write(f"Full Test Execution: {self.test_pack_link}\n")  # Write the link if provided
             file.write("Existing Bugs:\n")
             file.write('\n'.join(self.existing_bugs))
             file.write("\nNew Bugs:\n")
             file.write('\n'.join(self.new_bugs))
+
 
 class SummaryApp(App):
     def build(self):
