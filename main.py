@@ -149,7 +149,7 @@ class BugsScreen(Screen):
         with open(f"{self.subject}.txt", 'w') as file:
             file.write(f"Subject: {self.subject}\n")
             if self.test_pack_link:
-                file.write(f"Full Test Execution: {self.test_pack_link}\n")  # Write the link if provided
+                file.write(f"For full Test Execution: {self.test_pack_link}\n")  # Write the link if provided
             file.write("Existing Bugs:\n")
             file.write('\n'.join(self.existing_bugs))
             file.write("\nNew Bugs:\n")
